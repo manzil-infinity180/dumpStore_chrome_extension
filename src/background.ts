@@ -27,3 +27,15 @@ chrome.runtime.onMessage.addListener(function (
   }
   return true;
 });
+
+chrome.runtime.onMessage.addListener(function (
+  message,
+  sender,
+  senderResponse
+) {
+  if (message.type === "tab") {
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+      console.log(tabs[0].url);
+    });
+  }
+});

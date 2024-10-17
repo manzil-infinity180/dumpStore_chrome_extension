@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import CreateBookmark from "./components/CreateBookmark";
 import BookmarkCard from "./components/BookmarkCard";
 import { TbEdit } from "react-icons/tb";
+import SearchField from "./components/SearchField";
 type TProvider = string;
 type TState = "create" | "update" | "null";
 export interface IBookMark {
@@ -20,6 +21,14 @@ export interface IBookMark {
 const Popup = () => {
   const [state, setState] = useState<TState>("null");
   const [allBookmark, setAllBookmark] = useState<IBookMark[]>([]);
+  function FindDate(date: Date) {
+    const d1 = new Date(date);
+    return d1.toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
   const handleAuth = (provider: TProvider) => {
     chrome.identity.launchWebAuthFlow(
       {
@@ -71,6 +80,17 @@ const Popup = () => {
     await handleAllBookmark();
     setState("update");
   };
+  const handleWindow = () => {
+    chrome.tabs.update({ url: "http://example.com" });
+    chrome.runtime.sendMessage(
+      {
+        type: "tab",
+      },
+      (response) => {
+        console.log(response);
+      }
+    );
+  };
   return (
     <div style={{ minWidth: "400px", minHeight: "500px" }}>
       {/* <UpdateBookmark />
@@ -78,14 +98,15 @@ const Popup = () => {
       <button onClick={() => handleAuth("google")}>Google</button>
       <button onClick={() => handleAuth("github")}>Github</button>
       {/* <button onClick={() => handleAuth("github")}>Go to other page</button> */}
-      <button onClick={handleAllBookmark}>GET DATA</button>
-      <button onClick={() => setState("create")}>Create</button>
-      <button onClick={handleUpdateAndBookmark}>Update</button>
+      <button onClick={handleAllBookmark}>Update Data</button>
+      <button onClick={() => setState("create")}>Create Bookmark</button>
+      <button onClick={handleUpdateAndBookmark}>All Bookmark</button>
       {/* <button onClick={handleAllBookmark}>Logout</button> */}
 
       {state === "create" && <CreateBookmark />}
       {state === "update" && (
         <>
+          <SearchField setAllBookmark={setAllBookmark} />
           {allBookmark.length > 0 &&
             allBookmark.map((el) => (
               <>
@@ -95,6 +116,7 @@ const Popup = () => {
                     flexDirection: "column",
                     borderRadius: "12px",
                     paddingTop: "1rem",
+                    margin: "3px 2px",
                     paddingBottom: "1rem",
                     paddingLeft: "0.5rem",
                     paddingRight: "0.5rem",
@@ -105,13 +127,17 @@ const Popup = () => {
                     maxWidth: "24rem", // max-w-96
                     border: "1px solid #e2e8f0", // border
                   }}
-                  onClick={() => window.open(el.link)}
                 >
                   <div
                     style={{
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
+                    }}
+                    onClick={() => {
+                      chrome.tabs.update({
+                        url: el.link,
+                      });
                     }}
                   >
                     <img
@@ -126,7 +152,14 @@ const Popup = () => {
                       alt="bookmark"
                     />
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
+                  <div
+                    style={{ display: "flex", flexDirection: "column" }}
+                    onClick={() => {
+                      chrome.tabs.update({
+                        url: el.link,
+                      });
+                    }}
+                  >
                     {/* <Link to={data.link} target="_blank" style={{ textDecoration: "none" }}> */}
                     <h1
                       style={{
@@ -162,12 +195,19 @@ const Popup = () => {
                       alignItems: "flex-end",
                       opacity: 0.4,
                     }}
-                    // onClick={() => navigate(`/edit/${data._id}`)}
                   >
                     <TbEdit
-                      style={{ fontSize: "1.25rem", marginRight: "0.25rem" }}
+                      style={{
+                        fontSize: "1.25rem",
+                      }}
+                      onClick={() => {
+                        chrome.tabs.update({
+                          url: `http://localhost:5173/edit/${el._id}`,
+                        });
+                      }}
                     />
-                    {/* <p>{FindDate(el.createdAt as Date)}</p> */}
+                    <button>{FindDate(el.createdAt as Date)}</button>
+                    <p></p>
                   </div>
                 </div>
               </>

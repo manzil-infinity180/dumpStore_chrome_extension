@@ -81,10 +81,19 @@ const Popup = () => {
     setState("update");
   };
   const handleWindow = () => {
-    chrome.tabs.update({ url: "http://example.com" });
+    // chrome.tabs.update({ url: "http://example.com" });
+    async function getCurrentTabUrl() {
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+      });
+      return tab.url;
+    }
     chrome.runtime.sendMessage(
       {
-        type: "tab",
+        type: "tabx",
+        data: chrome.tabs,
+        tabsLink: getCurrentTabUrl(),
       },
       (response) => {
         console.log(response);
@@ -101,7 +110,7 @@ const Popup = () => {
       <button onClick={handleAllBookmark}>Update Data</button>
       <button onClick={() => setState("create")}>Create Bookmark</button>
       <button onClick={handleUpdateAndBookmark}>All Bookmark</button>
-      {/* <button onClick={handleAllBookmark}>Logout</button> */}
+      {/* <button onClick={handleWindow}>Logout</button> */}
 
       {state === "create" && <CreateBookmark />}
       {state === "update" && (

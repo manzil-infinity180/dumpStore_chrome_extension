@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 
 export default function Component() {
   const [title, setTitle] = useState("");
@@ -48,6 +48,17 @@ export default function Component() {
       }
     );
   };
+  useEffect(() => {
+    async function getCurrentTabUrl() {
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+      });
+      if (tab.url) {
+        setLink(tab.url);
+      }
+    }
+  }, []);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

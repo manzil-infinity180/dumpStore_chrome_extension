@@ -28,7 +28,8 @@
   "permissions": [
     "storage",
     "identity",
-    "activeTab"
+    "activeTab",
+    "bookmarks"
   ],
 
   "host_permissions": [

@@ -100,6 +100,16 @@ const Popup = () => {
       }
     );
   };
+  function handleExportData(){
+    chrome.runtime.sendMessage(
+      {
+        type: "export-data-bookmark"
+      },
+      (response) => {
+        console.log(response);
+      }
+    );
+  }
   return (
     <div style={{ minWidth: "400px", minHeight: "500px" }}>
       {/* <UpdateBookmark />
@@ -110,6 +120,7 @@ const Popup = () => {
       <button onClick={handleAllBookmark}>Update Data</button>
       <button onClick={() => setState("create")}>Create Bookmark</button>
       <button onClick={handleUpdateAndBookmark}>All Bookmark</button>
+      <button onClick={handleExportData}>Export Bookmark to dumpStore</button>
       {/* <button onClick={handleWindow}>Logout</button> */}
 
       {state === "create" && <CreateBookmark />}

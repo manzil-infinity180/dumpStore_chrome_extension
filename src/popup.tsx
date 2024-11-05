@@ -7,6 +7,17 @@ import { TbEdit } from "react-icons/tb";
 import SearchField from "./components/SearchField";
 type TProvider = string;
 type TState = "create" | "update" | "null";
+const buttonStyle: React.CSSProperties = {
+  padding: "0.5rem 1rem",
+  backgroundColor: "#3b82f6",
+  color: "white",
+  border: "none",
+  borderRadius: "0.25rem",
+  cursor: "pointer",
+  fontSize: "1rem",
+  width:"100%",
+  margin:"3px"
+};
 export interface IBookMark {
   _id: string;
   title: string;
@@ -112,15 +123,24 @@ const Popup = () => {
   }
   return (
     <div style={{ minWidth: "400px", minHeight: "500px" }}>
+      {state === "null" && (
+        <div>
+          <h1>dumpStore - Bookmark Your Link</h1>
+          {/* <p>You can create and update bookmark from here</p>
+          <p>For more functionality you can go to website</p> */}
+        </div>
+      )}
       {/* <UpdateBookmark />
        */}
-      <button onClick={() => handleAuth("google")}>Google</button>
-      <button onClick={() => handleAuth("github")}>Github</button>
+      <button onClick={() => handleAuth("google")}
+      style={{...buttonStyle}}
+        >Login with Google</button>
+      <button onClick={() => handleAuth("github")} style={{...buttonStyle}}>Login with Github</button>
       {/* <button onClick={() => handleAuth("github")}>Go to other page</button> */}
-      <button onClick={handleAllBookmark}>Update Data</button>
-      <button onClick={() => setState("create")}>Create Bookmark</button>
-      <button onClick={handleUpdateAndBookmark}>All Bookmark</button>
-      <button onClick={handleExportData}>Export Bookmark to dumpStore</button>
+      {/* <button onClick={handleAllBookmark} style={{...buttonStyle}}>Update Data</button> */}
+      <button onClick={() => setState("create")} style={{...buttonStyle}}>Create New Bookmark</button>
+      <button onClick={handleUpdateAndBookmark} style={{...buttonStyle}}>See Your All Bookmark</button>
+      <button onClick={handleExportData} style={{...buttonStyle}}>Export All Bookmark to dumpStore</button>
       {/* <button onClick={handleWindow}>Logout</button> */}
 
       {state === "create" && <CreateBookmark />}
@@ -234,13 +254,7 @@ const Popup = () => {
             ))}
         </>
       )}
-      {state === "null" && (
-        <div>
-          <h1>dumpStore - Bookmark Your Link</h1>
-          <p>You can create and update bookmark from here</p>
-          <p>For more functionality you can go to website</p>
-        </div>
-      )}
+      
     </div>
   );
 };

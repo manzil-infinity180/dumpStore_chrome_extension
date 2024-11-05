@@ -141,31 +141,49 @@ interface BookmarkNode {
 // Define a formatted bookmark interface
 interface FormattedBookmark {
   title: string;
-  url?: string;
-  dateAdded?: number,
-  dateLastUsed?: number,
-  id?: string
-  parentId?: string
+  link: string;
+  topics?: string;
+  tag?: string;
+  image?:string;
+  user_id: string
 }
 
+/*
+const {title, link} = req.body;
+    const domain = new URL(link).hostname;
+      if (!process.env.LOGO_FAVICON_URL) throw new Error("Favicon URl is invalid");
+      const image = process.env.LOGO_FAVICON_URL.replace("<DOMAIN>", domain);
+      const bookmark_object = {
+        title,
+        link,
+        tag: "exported",
+        topics: "exported data",
+        image,
+        // position: position + i,
+        // topics_position: i,
+        user_id: user.id,
+      };
+*/
 // Function to flatten bookmarks data
-function flattenBookmarks(bookmarkNodes: BookmarkNode[]): FormattedBookmark[] {
+function flattenBookmarks(bookmarkNodes: BookmarkNode[], user_id: string): FormattedBookmark[] {
   const flattenedBookmarks: FormattedBookmark[] = [];
 
   function traverseNodes(nodes: BookmarkNode[]): void {
       nodes.forEach(node => {
           if (node.url) {
               // This is a bookmark, add it to the flat array
+              const domain = new URL(node.url).hostname;
+              // haha its public key
+              const image = `https://img.logo.dev/${domain}?token=pk_PCz2SULwSFWmMvaP_SIfXg&size=150&format=png`
               flattenedBookmarks.push({
                   title: node.title,
-                  url: node.url,
-                  dateAdded: node?.dateAdded,
-                  dateLastUsed: node?.dateLastUsed,
-                  id: node.id,
-                  parentId: node?.parentId
+                  link: node.url,
+                  image,
+                  tag: "exported",
+                  topics: "exported data",
+                  user_id
               });
           } else if (node.children) {
-              // If this is a folder, traverse its children
               traverseNodes(node.children);
           }
       });
@@ -182,13 +200,33 @@ chrome.runtime.onMessage.addListener(function (
 ) {
   if (message.type === "export-data-bookmark") {
     console.log("hlleod");
-    
+    // /get-my-profile
+   
     chrome.bookmarks.getTree(async (bookmarkTreeNodes) => {
-      const flattenedData = flattenBookmarks(bookmarkTreeNodes);
+      
+      const req = await fetch("http://localhost:3008/api/get-my-profile", {
+        credentials: "include",
+      });
+      const {data} = await req.json();
+      const user_id: string = data._id;
+      if(!user_id){
+        throw new Error("You are not authenticated");
+      }
+      const flattenedData = flattenBookmarks(bookmarkTreeNodes, user_id);
+      console.log(flattenedData);
+      if(flattenedData.length >= 1){
+        const req = await fetch("http://localhost:3008/api/upload-all-bookmark-from-extension", {
+          method:"POST",
+          credentials: "include",
+          body: JSON.stringify({allbookmark: flattenedData}),
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await req.json();
+        console.log(data);
+      }
       console.log(bookmarkTreeNodes);
       console.log("Flattened Bookmarks:", JSON.stringify(flattenedData, null, 2));
     });
-   
   }
   return true;
 });

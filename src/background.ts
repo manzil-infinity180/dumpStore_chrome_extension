@@ -180,7 +180,7 @@ function flattenBookmarks(bookmarkNodes: BookmarkNode[], user_id: string): Forma
                   link: node.url,
                   image,
                   tag: "exported",
-                  topics: "exported data",
+                  topics: "chrome",
                   user_id
               });
           } else if (node.children) {
